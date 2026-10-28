@@ -2,6 +2,27 @@
 
 Sitio personal hecho con [Astro](https://astro.build): responsivo, con tema claro y oscuro, y pensado para ser accesible.
 
+# Portafolio de Carlos Chaparro López
+
+> Ingeniero de Software e Instructor en Bucaramanga, Colombia 🇨🇴
+
+Sitio web personal construido con **Astro**, diseñado para ser rápido, accesible y responsivo. Incluye soporte para tema claro/oscuro, animaciones optimizadas y una experiencia de usuario fluida.
+
+## ✨ Características Principales
+
+- 🚀 **Rendimiento**: Construido con Astro para una carga mínima y máxima velocidad.
+- 🎨 **Diseño Responsivo**: Adaptable a cualquier dispositivo, con soporte nativo para modo oscuro.
+- ♿ **Accesibilidad (a11y)**:
+  - Navegación por teclado completa (flechas, `Esc`, `Tab`).
+  - Soporte para lectores de pantalla con `aria-live`, `aria-pressed` y jerarquía de títulos.
+  - Tipografía **Atkinson Hyperlegible** (diseñada para baja visión).
+  - Contraste AA en ambos temas y objetivos táctiles de 44px.
+  - Respeta la preferencia del sistema para reducir movimiento.
+- 🎬 **Animaciones Interactivas**:
+  - Transiciones fluidas con **View Transitions API**.
+  - Efecto FLIP para zoom en proyectos.
+  - Lupa interactiva
+
 ## Empezar
 
 Requiere Node.js 22.12 o superior.
