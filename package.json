@@ -1,0 +1,17 @@
+{
+  "name": "carlos-chaparro-portafolio",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "7.3.8",
+    "sharp": "0.34.4"
+  }
+}

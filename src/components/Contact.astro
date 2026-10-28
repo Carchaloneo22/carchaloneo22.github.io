@@ -1,0 +1,133 @@
+---
+import { person } from '../data/profile';
+
+const channels = [
+  { label: 'LinkedIn', handle: 'carlos-chaparro', href: person.links.linkedin },
+  { label: 'GitHub', handle: '@Carchaloneo22', href: person.links.github },
+  { label: 'Linktree', handle: 'Carloschaparro', href: person.links.linktree },
+  { label: 'S3media', handle: 's3media.com.co', href: person.links.s3media },
+];
+---
+
+<section id="contacto" class="section contact" aria-labelledby="contacto-title">
+  <div class="wrap">
+    <h2 id="contacto-title">Hablemos de tu proyecto</h2>
+    <p class="lede">
+      Portales institucionales, plataformas a medida, bases de datos o formación para tu equipo. Escríbeme y te respondo
+      por correo.
+    </p>
+
+    <div class="mail">
+      <a class="mail-link" href={`mailto:${person.email}`}>{person.email.toLowerCase()}</a>
+      <button type="button" class="btn btn-ghost copy" data-copy={person.email}>Copiar correo</button>
+      <p class="copy-status" role="status" data-copy-status></p>
+    </div>
+
+    <ul class="channels" role="list">
+      {
+        channels.map((c) => (
+          <li>
+            <a href={c.href} target="_blank" rel="noopener noreferrer me">
+              <span class="ch-label">{c.label}</span>
+              <span class="ch-handle">{c.handle}</span>
+              <span class="sr-only"> (se abre en una pestaña nueva)</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .contact {
+    /* Siempre oscura para dar cierre a la página en ambos temas */
+    background: #081226;
+    color: #eef2f8;
+    --focus: #e3a83c;
+  }
+  h2 {
+    font-size: clamp(2.6rem, 1.4rem + 6vw, 7rem);
+    font-weight: 800;
+    font-variation-settings: 'wdth' 78;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    max-width: 14ch;
+  }
+  .lede {
+    margin-top: 1.5rem;
+    max-width: 38rem;
+    font-size: var(--step-1);
+    line-height: 1.5;
+    opacity: 0.85;
+  }
+  .mail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 2.5rem;
+  }
+  .mail-link {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 1rem + 2.2vw, 2.6rem);
+    font-weight: 700;
+    color: #e3a83c;
+    word-break: break-all;
+  }
+  .copy {
+    color: inherit;
+    border-color: currentColor;
+  }
+  .copy:hover {
+    background: rgb(127 127 127 / 0.18);
+  }
+  .copy-status {
+    flex-basis: 100%;
+    min-height: 1.5em;
+    font-size: var(--step--1);
+  }
+  .channels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 0.75rem;
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .channels a {
+    display: grid;
+    gap: 0.15rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: 14px;
+    border: 1px solid rgb(127 127 127 / 0.45);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.25s var(--ease);
+  }
+  .channels a:hover {
+    border-color: #e3a83c;
+    transform: translateY(-3px);
+  }
+  .ch-label {
+    font-weight: 700;
+  }
+  .ch-handle {
+    opacity: 0.75;
+    font-size: var(--step--1);
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-copy]');
+  const out = document.querySelector<HTMLElement>('[data-copy-status]');
+  btn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(btn.dataset.copy!.toLowerCase());
+      out!.textContent = 'Correo copiado al portapapeles.';
+    } catch {
+      out!.textContent = 'No se pudo copiar. Selecciona el correo y cópialo manualmente.';
+    }
+    setTimeout(() => (out!.textContent = ''), 4000);
+  });
+</script>

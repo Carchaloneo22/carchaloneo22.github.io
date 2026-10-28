@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://carchaloneo22.github.io/sitemap.xml

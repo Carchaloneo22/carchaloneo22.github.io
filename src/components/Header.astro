@@ -1,0 +1,201 @@
+---
+const links = [
+  { href: '#proyectos', label: 'Proyectos' },
+  { href: '#trayectoria', label: 'Trayectoria' },
+  { href: '#formacion', label: 'Formación' },
+  { href: '#contacto', label: 'Contacto' },
+];
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="mark" href="#inicio" aria-label="Carlos Chaparro, ir al inicio">
+      <span aria-hidden="true">CC</span>
+    </a>
+
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-principal" data-menu-btn>
+      <span class="menu-icon" aria-hidden="true"></span>
+      <span>Menú</span>
+    </button>
+
+    <nav aria-label="Principal">
+      <ul id="menu-principal" class="menu" data-menu>
+        {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <button class="theme-btn" type="button" aria-pressed="false" data-theme-btn>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
+        <path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="currentColor" />
+      </svg>
+      <span class="sr-only">Tema oscuro</span>
+    </button>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+  }
+  :global(body)::before {
+    content: '';
+    position: fixed;
+    inset: 0 0 auto;
+    height: env(safe-area-inset-top, 0px);
+    z-index: 10;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4.25rem;
+  }
+  .mark {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--font-display);
+    font-weight: 800;
+    text-decoration: none;
+    letter-spacing: -0.04em;
+  }
+  nav {
+    margin-left: auto;
+  }
+  .menu {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .menu a {
+    display: block;
+    padding: 0.6rem 0.9rem;
+    border-radius: 999px;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .menu a:hover {
+    background: var(--surface-2);
+  }
+  .theme-btn,
+  .menu-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .menu-btn {
+    display: none;
+    padding-inline: 1rem;
+    margin-left: auto;
+    font-weight: 700;
+  }
+  .menu-icon,
+  .menu-icon::before {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+    position: relative;
+    transition: transform 0.25s var(--ease);
+  }
+  .menu-icon::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+  }
+  .menu-icon {
+    top: -3px;
+  }
+  [aria-expanded='true'] .menu-icon {
+    transform: translateY(3px) rotate(45deg);
+  }
+  [aria-expanded='true'] .menu-icon::before {
+    transform: translateY(-6px) rotate(-90deg);
+  }
+
+  @media (max-width: 47.99rem) {
+    :global(.js) .menu-btn {
+      display: inline-flex;
+    }
+    :global(.js) nav {
+      margin-left: 0;
+    }
+    :global(.js) .menu {
+      position: absolute;
+      inset: 100% 0 auto;
+      flex-direction: column;
+      padding: 0.75rem var(--gutter) 1.25rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    :global(.js) .menu:not(.is-open) {
+      display: none;
+    }
+    :global(.js) .menu a {
+      padding: 0.9rem 1rem;
+      font-size: var(--step-1);
+    }
+    :global(html:not(.js)) .bar {
+      flex-wrap: wrap;
+    }
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]')!;
+  const menu = document.querySelector<HTMLElement>('[data-menu]')!;
+  const setMenu = (open: boolean) => {
+    btn.setAttribute('aria-expanded', String(open));
+    menu.classList.toggle('is-open', open);
+  };
+  btn.addEventListener('click', () => setMenu(btn.getAttribute('aria-expanded') !== 'true'));
+  menu.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setMenu(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+      btn.focus();
+    }
+  });
+
+  const root = document.documentElement;
+  const themeBtn = document.querySelector<HTMLButtonElement>('[data-theme-btn]')!;
+  const prefersDark = matchMedia('(prefers-color-scheme: dark)');
+  const isDark = () => root.dataset.theme === 'dark' || (!root.dataset.theme && prefersDark.matches);
+  const sync = () => themeBtn.setAttribute('aria-pressed', String(isDark()));
+  sync();
+  prefersDark.addEventListener('change', sync);
+  themeBtn.addEventListener('click', () => {
+    const next = isDark() ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('tema', next);
+    } catch {}
+    sync();
+  });
+</script>

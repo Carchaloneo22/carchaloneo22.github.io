@@ -1,0 +1,176 @@
+---
+import { degrees, certifications } from '../data/profile';
+const total = certifications.reduce((n, g) => n + g.items.length, 0);
+---
+
+<section id="formacion" class="section" aria-labelledby="formacion-title">
+  <div class="wrap">
+    <header class="section-head">
+      <h2 id="formacion-title">Formación</h2>
+      <p>Cinco títulos en veintidós años, del bachillerato técnico a la segunda ingeniería.</p>
+    </header>
+
+    <ol class="degrees" role="list">
+      {
+        degrees.map((d) => (
+          <li class="degree">
+            <p class="year">{d.year}</p>
+            <h3>{d.title}</h3>
+            <p class="place">{d.place}</p>
+            {d.note && <p class="note">{d.note}</p>}
+          </li>
+        ))
+      }
+    </ol>
+
+    <h3 class="certs-title">Certificaciones y cursos <span>({total})</span></h3>
+    <div class="certs">
+      {
+        certifications.map((g, i) => (
+          <details class="cert-group" open={i === 0}>
+            <summary>
+              <span>{g.group}</span>
+              <span class="count">{g.items.length}</span>
+            </summary>
+            <ul role="list">
+              {g.items.map((c) => (
+                <li>
+                  <span class="c-title">{c.title}</span>
+                  <span class="c-meta">
+                    {c.org}, {c.year}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .degrees {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 1px;
+    margin: 0 0 clamp(3rem, 5vw, 4.5rem);
+    padding: 0;
+    list-style: none;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .degree {
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    padding: 1.4rem 1.25rem 1.6rem;
+    background: var(--bg);
+  }
+  .degree:first-child {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .degree:first-child .place,
+  .degree:first-child .note,
+  .degree:first-child .year {
+    color: inherit;
+    opacity: 0.85;
+  }
+  .year {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 800;
+    font-variation-settings: 'wdth' 80;
+    color: var(--ocre);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .degree h3 {
+    font-size: var(--step-1);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .place {
+    color: var(--muted);
+  }
+  .note {
+    font-size: var(--step--1);
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .certs-title {
+    font-size: var(--step-2);
+    font-weight: 750;
+    margin-bottom: 1.25rem;
+  }
+  .certs-title span {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .certs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: 0.75rem;
+    align-items: start;
+  }
+  .cert-group {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+  }
+  summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: 52px;
+    padding: 0.75rem 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg) translateY(-3px);
+    transition: transform 0.3s var(--ease);
+    flex: none;
+  }
+  details[open] summary::after {
+    transform: rotate(-135deg) translateY(-3px);
+  }
+  summary span:first-child {
+    margin-right: auto;
+  }
+  .count {
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .cert-group ul {
+    margin: 0;
+    padding: 0 1.1rem 1rem;
+    list-style: none;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .cert-group li {
+    display: grid;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--line);
+  }
+  .c-meta {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+</style>

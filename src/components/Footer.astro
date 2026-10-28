@@ -1,0 +1,31 @@
+---
+import { person } from '../data/profile';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap row">
+    <p>© {year} {person.fullName}</p>
+    <a href="#inicio">Volver arriba</a>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: #081226;
+    color: #afbdd2;
+    border-top: 1px solid #1d2f55;
+    padding-block: 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    font-size: var(--step--1);
+    --focus: #e3a83c;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  a {
+    color: #eef2f8;
+  }
+</style>

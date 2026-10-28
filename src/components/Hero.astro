@@ -1,0 +1,307 @@
+---
+import { Image } from 'astro:assets';
+import foto from '../assets/carlos-2026.jpg';
+import { person } from '../data/profile';
+---
+
+<section id="inicio" class="hero" aria-labelledby="hero-title" data-hero>
+  <div class="wrap hero-grid">
+    <div class="copy">
+      <h1 id="hero-title" class="name">
+        <span class="line"><span style="--d: 0ms">{person.firstLine}</span></span>
+        <span class="line"><span style="--d: 110ms">{person.secondLine}</span></span>
+      </h1>
+
+      <div class="lead">
+        <p class="role">{person.role} en {person.city}.</p>
+        <p class="intro">{person.intro}</p>
+        <div class="actions">
+          <a class="btn btn-solid" href="#proyectos">Ver proyectos</a>
+          <a class="btn btn-ghost" href="#contacto">Escribirme</a>
+        </div>
+      </div>
+
+      <aside class="now" aria-labelledby="ahora-title">
+        <h2 id="ahora-title">Ahora</h2>
+        <ul>
+          {person.now.map((n) => <li>{n}</li>)}
+        </ul>
+      </aside>
+    </div>
+
+    <figure class="photo">
+      <span class="outline" aria-hidden="true"></span>
+      <div class="frame">
+        <div class="zoomer">
+          <Image
+            src={foto}
+            alt={`${person.name} frente a su portátil en una oficina`}
+            widths={[320, 460]}
+            sizes="(min-width: 48rem) 28rem, 92vw"
+            loading="eager"
+            fetchpriority="high"
+            format="webp"
+          />
+        </div>
+      </div>
+      <figcaption class="tag">
+        <span class="dot" aria-hidden="true"></span>
+        {person.city}
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero {
+    --p: 0;
+    overflow-x: clip;
+    padding-block: clamp(2.5rem, 2rem + 5vw, 6rem) clamp(3rem, 2rem + 4vw, 5rem);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+  }
+  .copy {
+    display: grid;
+    gap: clamp(1.75rem, 3vw, 2.75rem);
+    translate: 0 calc(var(--p) * -48px);
+    opacity: calc(1 - var(--p) * 0.6);
+  }
+  .name {
+    font-size: clamp(3.2rem, 1.4rem + 7.5vw, 8.5rem);
+    font-weight: 800;
+    font-variation-settings: 'wdth' 78, 'opsz' 96;
+    line-height: 0.88;
+    letter-spacing: -0.035em;
+  }
+  .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+  }
+  .line > span {
+    display: block;
+    animation: rise 0.9s var(--ease) both;
+    animation-delay: var(--d);
+  }
+  .line:nth-child(2) {
+    color: var(--accent);
+  }
+
+  .lead {
+    display: grid;
+    gap: 1rem;
+    max-width: 40rem;
+    animation: fade 0.8s ease both;
+    animation-delay: 520ms;
+  }
+  .role {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 650;
+    line-height: 1.15;
+  }
+  .intro {
+    font-size: var(--step-1);
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  .now {
+    max-width: 28rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--ocre);
+    animation: fade 0.8s ease both;
+    animation-delay: 680ms;
+  }
+  .now h2 {
+    font-size: var(--step-0);
+    font-weight: 700;
+    letter-spacing: 0;
+    margin-bottom: 0.35rem;
+  }
+  .now ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.4rem;
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  /* Foto: revelado al cargar y zoom al hacer scroll */
+  .photo {
+    position: relative;
+    margin: 0;
+    width: 100%;
+    max-width: 30rem;
+    justify-self: end;
+    translate: 0 calc(var(--p) * -36px);
+  }
+  .outline {
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--ocre);
+    border-radius: 30px;
+    translate: calc(16px + var(--p) * 22px) calc(16px + var(--p) * 22px);
+    animation: outline-in 1.2s var(--ease) both;
+    animation-delay: 450ms;
+  }
+  .frame {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: calc(30px + var(--p) * 30px);
+    overflow: hidden;
+    background: var(--accent);
+    box-shadow: var(--shadow);
+    animation: reveal 1.25s var(--ease) both;
+    animation-delay: 150ms;
+  }
+  .frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(8 18 38 / 0.45), transparent 40%);
+    pointer-events: none;
+  }
+  .zoomer {
+    width: 100%;
+    height: 100%;
+    transform: scale(calc(1 + var(--p) * 0.45));
+    transform-origin: 38% 30%;
+    will-change: transform;
+  }
+  .zoomer :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 30% 50%;
+    animation: settle 1.6s var(--ease) both;
+    animation-delay: 150ms;
+  }
+  .tag {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.92);
+    color: #0c1830;
+    font-size: var(--step--1);
+    font-weight: 700;
+    animation: fade 0.7s ease both;
+    animation-delay: 1.1s;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2e8b3a;
+    box-shadow: 0 0 0 0 rgb(46 139 58 / 0.6);
+    animation: pulse 2.2s ease-out infinite 2s;
+  }
+
+  @keyframes rise {
+    from {
+      transform: translateY(105%);
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+  @keyframes reveal {
+    from {
+      clip-path: inset(100% 0 0 0 round 30px);
+    }
+    to {
+      clip-path: inset(0 0 0 0 round 30px);
+    }
+  }
+  @keyframes settle {
+    from {
+      scale: 1.35;
+      filter: saturate(0.4);
+    }
+  }
+  @keyframes outline-in {
+    from {
+      opacity: 0;
+      translate: -8px -8px;
+    }
+  }
+  @keyframes pulse {
+    70% {
+      box-shadow: 0 0 0 10px rgb(46 139 58 / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgb(46 139 58 / 0);
+    }
+  }
+
+  @media (max-width: 47.99rem) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .photo {
+      order: -1;
+      justify-self: stretch;
+      max-width: 26rem;
+      padding-right: 16px;
+    }
+    .frame {
+      aspect-ratio: 1;
+    }
+    .outline {
+      right: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero {
+      --p: 0 !important;
+    }
+    .dot {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  if (hero && !reduce.matches) {
+    let queued = false;
+    const update = () => {
+      queued = false;
+      const r = hero.getBoundingClientRect();
+      const p = Math.min(1, Math.max(0, -r.top / (r.height * 0.85)));
+      hero.style.setProperty('--p', p.toFixed(4));
+    };
+    addEventListener(
+      'scroll',
+      () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true }
+    );
+    update();
+  }
+</script>

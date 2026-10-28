@@ -1,0 +1,846 @@
+---
+import { Image } from 'astro:assets';
+import { projects as all, categories } from '../data/profile';
+
+// Los proyectos de coordinación SENA van primero; el resto conserva su orden.
+const projects = [...all.filter((p) => p.category === 'sena'), ...all.filter((p) => p.category !== 'sena')];
+
+const catLabel = Object.fromEntries(categories.map((c) => [c.id, c.label]));
+---
+
+<section id="proyectos" class="section projects" aria-labelledby="proyectos-title">
+  <div class="wrap">
+    <header class="section-head">
+      <h2 id="proyectos-title">Proyectos</h2>
+      <p>Portales públicos, plataformas educativas y sistemas de datos. Elige uno para acercarte a los detalles.</p>
+    </header>
+
+    <div class="filters" role="group" aria-label="Filtrar proyectos por tipo">
+      {
+        categories.map((c, i) => (
+          <button type="button" class="filter" data-filter={c.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {c.label}
+          </button>
+        ))
+      }
+    </div>
+    {
+      categories
+        .filter((c) => c.note)
+        .map((c) => (
+          <p class="cat-note" data-note={c.id} hidden>
+            {c.note}
+          </p>
+        ))
+    }
+    <p class="sr-only" aria-live="polite" data-filter-status></p>
+
+    <ul class="board" data-board role="list">
+      {
+        projects.map((p) => (
+          <li
+            class:list={['tile', { featured: p.featured }]}
+            data-cat={[p.category, ...(p.also ?? [])].join(' ')}
+            style={`view-transition-name: t-${p.slug}`}
+          >
+            <button
+              type="button"
+              class="tile-btn"
+              data-tile
+              data-slug={p.slug}
+              aria-haspopup="dialog"
+              aria-controls="project-dialog"
+            >
+              <span class="tile-media" data-cat={p.category}>
+                {p.shots ? (
+                  <Image
+                    class={p.shots[0].fit === 'contain' ? 'is-contain' : undefined}
+                    src={p.shots[0].src}
+                    alt=""
+                    widths={[400, 640, 960]}
+                    sizes={p.featured ? '(min-width: 64rem) 40rem, 100vw' : '(min-width: 64rem) 20rem, 100vw'}
+                    format="webp"
+                  />
+                ) : (
+                  <span class="ph" aria-hidden="true">
+                    {p.title}
+                  </span>
+                )}
+              </span>
+              <span class="tile-text">
+                <span class="tile-title">{p.title}</span>
+                <span class="tile-meta">{p.client}</span>
+                <span class="sr-only">, ver detalles</span>
+              </span>
+              <span class="tile-plus" aria-hidden="true" />
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  {
+    projects.map((p) => (
+      <template id={`tpl-${p.slug}`}>
+        <article class:list={['detail', { 'has-shots': p.shots }]}>
+          {p.shots ? (
+            <div class="gallery">
+              <div class="stage">
+                {p.shots.map((s, i) => (
+                  <button
+                    type="button"
+                    class="loupe"
+                    data-loupe
+                    aria-pressed="false"
+                    aria-label={`Ampliar imagen: ${s.alt}`}
+                    hidden={i > 0}
+                  >
+                    <Image
+                      class={s.fit === 'contain' ? 'is-contain' : undefined}
+                      src={s.src}
+                      alt=""
+                      widths={[640, 960, 1400]}
+                      sizes="(min-width: 64rem) 62rem, 100vw"
+                      format="webp"
+                    />
+                  </button>
+                ))}
+              </div>
+              {p.shots.length > 1 && (
+                <div class="thumbs" role="group" aria-label="Capturas del proyecto">
+                  {p.shots.map((s, i) => (
+                    <button
+                      type="button"
+                      class="thumb"
+                      data-thumb
+                      aria-pressed={i === 0 ? 'true' : 'false'}
+                      aria-label={`Captura ${i + 1} de ${p.shots!.length}`}
+                    >
+                      <Image src={s.src} alt="" width={160} format="webp" />
+                    </button>
+                  ))}
+                </div>
+              )}
+              <p class="hint">Haz clic en la imagen para acercarte y otra vez para alejarte.</p>
+            </div>
+          ) : null}
+
+          <div class="detail-text">
+            <header class:list={['detail-head', { band: !p.shots }]} data-cat={p.category}>
+              <p class="detail-cat">{catLabel[p.category]}</p>
+              <h2 id={`title-${p.slug}`}>{p.title}</h2>
+            </header>
+            <dl class="facts">
+              <div>
+                <dt>Para</dt>
+                <dd>{p.client}</dd>
+              </div>
+              <div>
+                <dt>Rol</dt>
+                <dd>{p.role}</dd>
+              </div>
+              {p.year && (
+                <div>
+                  <dt>Año</dt>
+                  <dd>{p.year}</dd>
+                </div>
+              )}
+            </dl>
+            <p class="summary">{p.summary}</p>
+            {p.points && (
+              <ul class="points">
+                {p.points.map((pt) => (
+                  <li>{pt}</li>
+                ))}
+              </ul>
+            )}
+            <ul class="tech" aria-label="Tecnologías y enfoques">
+              {p.tech.map((t) => (
+                <li class="chip">{t}</li>
+              ))}
+            </ul>
+            {p.url && (
+              <a class="btn btn-solid" href={p.url} target="_blank" rel="noopener noreferrer">
+                {p.urlLabel ?? 'Visitar el sitio'}
+                <span class="sr-only"> (se abre en una pestaña nueva)</span>
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16">
+                  <path d="M5 3h8v8M13 3 3 13" stroke="currentColor" stroke-width="2" fill="none" />
+                </svg>
+              </a>
+            )}
+          </div>
+        </article>
+      </template>
+    ))
+  }
+
+  <dialog id="project-dialog" class="zoom" aria-modal="true">
+    <div class="zoom-panel" data-panel>
+      <div class="zoom-bar">
+        <p class="zoom-count" data-count></p>
+        <div class="zoom-nav">
+          <button type="button" class="icon-btn" data-prev aria-label="Proyecto anterior">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" stroke="currentColor" stroke-width="2.2" fill="none" /></svg>
+          </button>
+          <button type="button" class="icon-btn" data-next aria-label="Proyecto siguiente">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><path d="m7.5 4 6 6-6 6" stroke="currentColor" stroke-width="2.2" fill="none" /></svg>
+          </button>
+          <button type="button" class="icon-btn" data-close aria-label="Cerrar detalles">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="2.2" fill="none" /></svg>
+          </button>
+        </div>
+      </div>
+      <div class="zoom-body" data-body></div>
+    </div>
+  </dialog>
+</section>
+
+<style>
+  /* Filtros */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .filter {
+    min-height: 44px;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .filter:hover {
+    border-color: var(--accent);
+  }
+  .filter[aria-pressed='true'] {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg);
+  }
+
+  .cat-note {
+    max-width: 44rem;
+    margin: -0.75rem 0 1.75rem;
+    padding: 0.85rem 1.1rem;
+    border-left: 3px solid #2e8b3a;
+    background: color-mix(in srgb, #2e8b3a 10%, var(--surface));
+    border-radius: 0 10px 10px 0;
+  }
+  .cat-note[hidden] {
+    display: none;
+  }
+
+  /* Tablero */
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr));
+    grid-auto-flow: dense;
+    gap: clamp(0.85rem, 1.5vw, 1.35rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  @media (min-width: 40rem) {
+    .tile.featured {
+      grid-column: span 2;
+    }
+  }
+  .tile[hidden] {
+    display: none;
+  }
+  .tile-btn {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: zoom-in;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .tile-btn:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+  }
+  .tile-btn:focus-visible {
+    outline-offset: 4px;
+    border-radius: 16px;
+  }
+  .tile-media {
+    --hue: var(--accent);
+    display: block;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--hue) 16%, var(--surface-2));
+  }
+  .featured .tile-media {
+    aspect-ratio: 16 / 8;
+  }
+  .tile-media[data-cat='sena'] {
+    --hue: #2e8b3a;
+  }
+  .tile-media :global(img.is-contain) {
+    object-fit: contain;
+    object-position: center;
+    padding: 1.25rem;
+    background: #fff;
+  }
+  .tile-media[data-cat='gobierno'] {
+    --hue: var(--ocre);
+  }
+  .tile-media[data-cat='educacion'] {
+    --hue: #2f8f7c;
+  }
+  .tile-media[data-cat='empresas'] {
+    --hue: #8a5bc4;
+  }
+  .tile-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform 0.6s var(--ease);
+  }
+  .tile-btn:hover .tile-media :global(img),
+  .tile-btn:focus-visible .tile-media :global(img) {
+    transform: scale(1.06);
+  }
+  .ph {
+    display: flex;
+    align-items: flex-end;
+    height: 100%;
+    padding: 1rem 1.1rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variation-settings: 'wdth' 76;
+    font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.6rem);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: color-mix(in srgb, var(--hue) 70%, var(--text));
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent 0 14px,
+      color-mix(in srgb, var(--hue) 12%, transparent) 14px 15px
+    );
+    transition: transform 0.6s var(--ease);
+    transform-origin: 0 100%;
+  }
+  .tile-btn:hover .ph {
+    transform: scale(1.05);
+  }
+  .tile-text {
+    display: grid;
+    align-content: start;
+    gap: 0.2rem;
+    padding: 0.9rem 3.2rem 1.1rem 1.1rem;
+  }
+  .tile-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--step-1);
+    line-height: 1.15;
+  }
+  .tile-meta {
+    color: var(--muted);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+  .tile-plus {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    background:
+      linear-gradient(currentColor, currentColor) center / 12px 2px no-repeat,
+      linear-gradient(currentColor, currentColor) center / 2px 12px no-repeat;
+    transition: transform 0.35s var(--ease), background-color 0.25s, color 0.25s;
+  }
+  .tile-btn:hover .tile-plus {
+    transform: rotate(90deg);
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  /* Diálogo con efecto zoom */
+  .zoom {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    overflow: hidden;
+  }
+  .zoom[open] {
+    display: grid;
+    place-items: center;
+  }
+  .zoom::backdrop {
+    background: rgb(8 16 32 / 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .zoom-panel {
+    width: min(100% - 1.5rem, 64rem);
+    max-height: calc(100% - 1.5rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.55);
+    transform-origin: 0 0;
+  }
+  .zoom-bar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.75rem 0.75rem 1.25rem;
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .zoom-count {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+  .zoom-nav {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .icon-btn:hover {
+    background: var(--surface-2);
+  }
+
+  .zoom-body :global(.detail) {
+    display: grid;
+  }
+  .zoom-body :global(.gallery) {
+    padding: 1rem 1rem 0;
+  }
+  .zoom-body :global(.stage) {
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .zoom-body :global(.loupe) {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    overflow: hidden;
+    cursor: zoom-in;
+  }
+  .zoom-body :global(.loupe[hidden]) {
+    display: none;
+  }
+  .zoom-body :global(.loupe img) {
+    width: 100%;
+    background: #fff;
+    max-height: 62vh;
+    object-fit: contain;
+    transition: transform 0.45s var(--ease);
+  }
+  .zoom-body :global(.loupe img.is-contain) {
+    max-width: 26rem;
+    margin-inline: auto;
+    padding: 2rem;
+  }
+  .zoom-body :global(.loupe:has(img.is-contain)) {
+    background: #fff;
+  }
+  .zoom-body :global(.loupe[aria-pressed='true']) {
+    cursor: zoom-out;
+  }
+  .zoom-body :global(.loupe[aria-pressed='true'] img) {
+    transform: scale(2.2);
+  }
+  .zoom-body :global(.thumbs) {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+  }
+  .zoom-body :global(.thumb) {
+    flex: none;
+    width: 6rem;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface-2);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s, border-color 0.2s;
+  }
+  .zoom-body :global(.thumb img) {
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top;
+  }
+  .zoom-body :global(.thumb[aria-pressed='true']) {
+    border-color: var(--accent);
+    opacity: 1;
+  }
+  .zoom-body :global(.hint) {
+    margin-top: 0.6rem;
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+  .zoom-body :global(.detail-head) {
+    display: grid;
+    gap: 0.5rem;
+    justify-self: stretch;
+  }
+  .zoom-body :global(.detail-head.band) {
+    --hue: var(--accent);
+    align-content: end;
+    min-height: clamp(10rem, 24vw, 15rem);
+    padding: 1.25rem 1.5rem;
+    border-radius: 14px;
+    background-color: color-mix(in srgb, var(--hue) 16%, var(--surface-2));
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent 0 14px,
+      color-mix(in srgb, var(--hue) 12%, transparent) 14px 15px
+    );
+  }
+  .zoom-body :global(.detail-head.band[data-cat='sena']) {
+    --hue: #2e8b3a;
+  }
+  .zoom-body :global(.detail-head.band[data-cat='gobierno']) {
+    --hue: var(--ocre);
+  }
+  .zoom-body :global(.detail-head.band[data-cat='educacion']) {
+    --hue: #2f8f7c;
+  }
+  .zoom-body :global(.detail-head.band[data-cat='empresas']) {
+    --hue: #8a5bc4;
+  }
+  .zoom-body :global(.detail-head.band h2) {
+    font-size: clamp(2.6rem, 1.5rem + 5vw, 5rem);
+    font-weight: 800;
+    font-variation-settings: 'wdth' 76;
+    line-height: 0.92;
+    color: color-mix(in srgb, var(--hue) 55%, var(--text));
+  }
+  .zoom-body :global(.detail:not(.has-shots) .detail-text) {
+    max-width: none;
+    padding-top: 1rem;
+  }
+  .zoom-body :global(.detail:not(.has-shots) .detail-text > :not(.detail-head)) {
+    max-width: 46rem;
+  }
+  .zoom-body :global(.detail-text) {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+    padding: clamp(1.25rem, 3vw, 2.25rem);
+    max-width: 46rem;
+  }
+  .zoom-body :global(.detail-cat) {
+    color: var(--ocre);
+    font-weight: 700;
+    font-size: var(--step--1);
+  }
+  .zoom-body :global(.detail-text h2) {
+    font-size: var(--step-3);
+    font-weight: 750;
+    font-variation-settings: 'wdth' 85;
+  }
+  .zoom-body :global(.facts) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin: 0;
+  }
+  .zoom-body :global(.facts dt) {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+  .zoom-body :global(.facts dd) {
+    margin: 0;
+    font-weight: 700;
+  }
+  .zoom-body :global(.summary) {
+    font-size: var(--step-1);
+    line-height: 1.5;
+  }
+  .zoom-body :global(.points) {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .zoom-body :global(.points li::marker) {
+    color: var(--ocre);
+  }
+  .zoom-body :global(.tech) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 64rem) {
+    .zoom-panel {
+      width: min(100% - 3rem, 76rem);
+    }
+    .zoom-body :global(.detail.has-shots) {
+      grid-template-columns: minmax(0, 1.55fr) minmax(19rem, 1fr);
+      align-items: start;
+    }
+    .zoom-body :global(.detail.has-shots .gallery) {
+      position: sticky;
+      top: 4.5rem;
+      padding: 1.25rem 0 1.25rem 1.25rem;
+    }
+    .zoom-body :global(.detail.has-shots .loupe img) {
+      max-height: 70vh;
+    }
+  }
+
+  :global(html.is-zoomed) {
+    overflow: hidden;
+  }
+
+  :global(::view-transition-group(*)) {
+    animation-duration: 0.45s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+
+  @media (max-width: 39.99rem) {
+    .zoom-panel {
+      width: 100%;
+      max-height: 100%;
+      height: 100%;
+      border-radius: 0;
+      border: 0;
+    }
+  }
+</style>
+
+<script>
+  const dialog = document.getElementById('project-dialog') as HTMLDialogElement;
+  const panel = dialog.querySelector<HTMLElement>('[data-panel]')!;
+  const body = dialog.querySelector<HTMLElement>('[data-body]')!;
+  const count = dialog.querySelector<HTMLElement>('[data-count]')!;
+  const board = document.querySelector<HTMLElement>('[data-board]')!;
+  const tiles = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-tile]'));
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+  const status = document.querySelector<HTMLElement>('[data-filter-status]')!;
+  const notes = Array.from(document.querySelectorAll<HTMLElement>('[data-note]'));
+  const root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const EASE = 'cubic-bezier(0.2, 0.7, 0.1, 1)';
+  const DUR = 560;
+  let current: HTMLButtonElement | null = null;
+  let busy = false;
+
+  const itemOf = (t: HTMLElement) => t.closest('li') as HTMLLIElement;
+  const visible = () => tiles.filter((t) => !itemOf(t).hidden);
+
+  // Transformación que hace que `el` ocupe el rectángulo `target`.
+  const flip = (target: DOMRect, el: DOMRect) =>
+    `translate(${target.left - el.left}px, ${target.top - el.top}px) scale(${target.width / el.width}, ${target.height / el.height})`;
+
+  function zoomBoard(tile: HTMLElement, inward: boolean) {
+    board.getAnimations().forEach((a) => a.cancel());
+    const r = tile.getBoundingClientRect();
+    const b = board.getBoundingClientRect();
+    board.style.transformOrigin = `${r.left + r.width / 2 - b.left}px ${r.top + r.height / 2 - b.top}px`;
+    const frames: Keyframe[] = [
+      { transform: 'scale(1)', opacity: 1 },
+      { transform: 'scale(1.2)', opacity: 0.3 },
+    ];
+    board.animate(inward ? frames : frames.reverse(), { duration: DUR, easing: EASE, fill: 'forwards' });
+  }
+
+  function wireGallery(scope: HTMLElement) {
+    const loupes = Array.from(scope.querySelectorAll<HTMLButtonElement>('[data-loupe]'));
+    const thumbs = Array.from(scope.querySelectorAll<HTMLButtonElement>('[data-thumb]'));
+
+    loupes.forEach((btn) => {
+      const img = btn.querySelector('img');
+      if (!img) return;
+      const aim = (e: MouseEvent) => {
+        const r = btn.getBoundingClientRect();
+        img.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`;
+      };
+      btn.addEventListener('click', (e) => {
+        const on = btn.getAttribute('aria-pressed') !== 'true';
+        btn.setAttribute('aria-pressed', String(on));
+        if (e.detail > 0) aim(e);
+        else img.style.transformOrigin = '50% 50%';
+      });
+      btn.addEventListener('pointermove', (e) => {
+        if (e.pointerType === 'mouse' && btn.getAttribute('aria-pressed') === 'true') aim(e);
+      });
+    });
+
+    thumbs.forEach((thumb, i) =>
+      thumb.addEventListener('click', () => {
+        thumbs.forEach((t, j) => t.setAttribute('aria-pressed', String(i === j)));
+        loupes.forEach((l, j) => {
+          l.hidden = i !== j;
+          l.setAttribute('aria-pressed', 'false');
+        });
+      })
+    );
+  }
+
+  function render(tile: HTMLButtonElement) {
+    const slug = tile.dataset.slug!;
+    const tpl = document.getElementById(`tpl-${slug}`) as HTMLTemplateElement;
+    body.replaceChildren(tpl.content.cloneNode(true));
+    dialog.setAttribute('aria-labelledby', `title-${slug}`);
+    const list = visible();
+    count.textContent = `Proyecto ${list.indexOf(tile) + 1} de ${list.length}`;
+    wireGallery(body);
+    panel.scrollTop = 0;
+  }
+
+  async function open(tile: HTMLButtonElement) {
+    if (busy) return;
+    current = tile;
+    render(tile);
+    dialog.showModal();
+    root.classList.add('is-zoomed');
+    if (reduce.matches) return;
+
+    busy = true;
+    const from = tile.getBoundingClientRect();
+    const to = panel.getBoundingClientRect();
+    zoomBoard(tile, true);
+    body.animate([{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1 }], { duration: DUR, easing: 'ease' });
+    await panel
+      .animate([{ transform: flip(from, to), borderRadius: '16px' }, { transform: 'none' }], { duration: DUR, easing: EASE })
+      .finished.catch(() => {});
+    busy = false;
+  }
+
+  async function close() {
+    if (busy || !dialog.open) return;
+    const tile = current;
+    if (!reduce.matches && tile) {
+      busy = true;
+      tile.scrollIntoView({ block: 'nearest' });
+      const to = tile.getBoundingClientRect();
+      const from = panel.getBoundingClientRect();
+      zoomBoard(tile, false);
+      body.animate([{ opacity: 1 }, { opacity: 0, offset: 0.35 }, { opacity: 0 }], { duration: DUR * 0.8, fill: 'forwards' });
+      await panel
+        .animate([{ transform: 'none' }, { transform: flip(to, from), borderRadius: '16px' }], {
+          duration: DUR * 0.8,
+          easing: EASE,
+          fill: 'forwards',
+        })
+        .finished.catch(() => {});
+      busy = false;
+    }
+    dialog.close();
+  }
+
+  async function go(step: number) {
+    if (!current || busy) return;
+    const list = visible();
+    const next = list[(list.indexOf(current) + step + list.length) % list.length];
+    current = next;
+    if (reduce.matches) {
+      render(next);
+      return;
+    }
+    busy = true;
+    await body
+      .animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-step * 28}px)` }], {
+        duration: 160,
+        easing: 'ease-in',
+      })
+      .finished.catch(() => {});
+    render(next);
+    await body
+      .animate([{ opacity: 0, transform: `translateX(${step * 28}px)` }, { opacity: 1, transform: 'none' }], {
+        duration: 280,
+        easing: EASE,
+      })
+      .finished.catch(() => {});
+    busy = false;
+  }
+
+  tiles.forEach((t) => t.addEventListener('click', () => open(t)));
+  dialog.querySelector('[data-close]')!.addEventListener('click', close);
+  dialog.querySelector('[data-prev]')!.addEventListener('click', () => go(-1));
+  dialog.querySelector('[data-next]')!.addEventListener('click', () => go(1));
+  dialog.addEventListener('cancel', (e) => {
+    e.preventDefault();
+    close();
+  });
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) close();
+  });
+  dialog.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
+  });
+  dialog.addEventListener('close', () => {
+    root.classList.remove('is-zoomed');
+    [board, panel, body].forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
+    body.replaceChildren();
+    current?.focus({ preventScroll: true });
+  });
+
+  chips.forEach((chip) =>
+    chip.addEventListener('click', () => {
+      const cat = chip.dataset.filter!;
+      const apply = () => {
+        chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+        tiles.forEach((t) => {
+          const li = itemOf(t);
+          li.hidden = cat !== 'todos' && !li.dataset.cat!.split(' ').includes(cat);
+        });
+        notes.forEach((n) => (n.hidden = n.dataset.note !== cat));
+        status.textContent = `Mostrando ${visible().length} proyectos`;
+      };
+      const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+      if (doc.startViewTransition && !reduce.matches) doc.startViewTransition(apply);
+      else apply();
+    })
+  );
+</script>
